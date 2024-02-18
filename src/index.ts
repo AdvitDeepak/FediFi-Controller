@@ -15,19 +15,15 @@ Installing Bun:
 Then, to run, simply use `bun run dev`
 
 Todo: can experiment w/ bun features like grouping 
-
 */
 
-// import { Elysia } from "elysia";
 import express from "express";
 import { Database } from "bun:sqlite";
-
 const bodyParser = require('body-parser');
 
 
+// Set up the DB/tables, if they don't already exist 
 const DB = new Database("db.sqlite", { create: true });
-
-// Set up the tables, if they don't already exist 
 
 DB.query(`
   CREATE TABLE IF NOT EXISTS Relations (
@@ -41,16 +37,19 @@ DB.query(`
     Advertisement TEXT NOT NULL
   );`).run();
 
-// DB.query(`
-// INSERT INTO Relations (ID_Creator, ID_advertisement)
-// VALUES ('satva', 'test0');`).run();
 
-// DB.query(`
-// INSERT INTO Advertisements (ID_advertisement, Advertisement)
-// VALUES ('test0', 'haha');
-// `).run();
+DB.query(`
+  CREATE TABLE IF NOT EXISTS Creators (
+    ID_creator TEXT NOT NULL,
+    ID_wallet TEXT NOT NULL,
+    earnings TEXT NOT NULL
+  );`).run();
+
 
 console.log('Database and tables created successfully.');
+
+
+// Set up the Backend Application 
 
 const app = express();
 const port = 8080;
@@ -59,9 +58,8 @@ app.use(bodyParser.json());
 
 
 // 01 - Home 
-
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello FediFi!");
 });
 
 
@@ -104,6 +102,8 @@ app.get("/get_all_ads", (req, res) => {
 app.post("/view_ad", (req, res) => {
   console.log("/view_ad");
 
+  // Bump up that creator's viewcount total 
+
   // TODO -- call the caledera chain thing! 
 
 });
@@ -129,6 +129,9 @@ app.post("/use_ad", (req, res) => {
 });
 
 
+// 05 - POST /view_earnings --> given a creator id 
+
+app.post("/view_earnings", )
 
 
 
