@@ -1,5 +1,7 @@
 /*
 
+0xf45fF976a1bB8321950fDc3f7EcCAb3C6805B7Ac
+
 **Installation and Usage**
 
 REF: https://dev.to/sadeedpv/build-an-http-server-in-bun-4k8l
@@ -41,8 +43,7 @@ DB.query(`
 DB.query(`
   CREATE TABLE IF NOT EXISTS Creators (
     ID_creator TEXT NOT NULL,
-    ID_wallet TEXT NOT NULL,
-    earnings TEXT NOT NULL
+    earnings INT NOT NULL
   );`).run();
 
 
@@ -101,10 +102,16 @@ app.get("/get_all_ads", (req, res) => {
 
 app.post("/view_ad", (req, res) => {
   console.log("/view_ad");
-
+  const requestData = req.body;
+  
   // Bump up that creator's viewcount total 
+  const creatorId = requestData.creatorId; 
+  const dump0 = DB.query(`INSERT INTO Creators (ID_creator, earnings) VALUES ('${creatorId}', '0') ON CONFLICT(ID_creator) DO NOTHING;`).run();
+
+  const resp4 = DB.query(`UPDATE Creators SET earnings = earnings + 1 WHERE ID_creator = '${creatorId}';`).run();
 
   // TODO -- call the caledera chain thing! 
+  res.send("Still a work in progress, but good luck!");
 
 });
 
@@ -118,7 +125,12 @@ app.post("/use_ad", (req, res) => {
   const creatorId = requestData.creatorId;
   const imgEncoded = requestData.imageEncoded;
   const adId = requestData.adId; 
+
+  // If creator doesn't already exist, add them to the table with view count 0 
+  //const dump0 = DB.query(`INSERT INTO Creators (ID_creator, earnings) VALUES ('${creatorId}', 0) WHERE NOT EXISTS (SELECT 1 FROM Creators WHERE ID_creator = '${creatorId}');`).run();
   
+  const dump0 = DB.query(`INSERT OR IGNORE INTO Creators (ID_creator, earnings) VALUES ('${creatorId}', 0);`).run();
+
   const dump1 = DB.query(`INSERT INTO Relations (ID_creator, ID_advertisement) VALUES ('${creatorId}', '${adId}')`).run();
   console.log("Added to Relations Table");
 
@@ -131,7 +143,34 @@ app.post("/use_ad", (req, res) => {
 
 // 05 - POST /view_earnings --> given a creator id 
 
-app.post("/view_earnings", )
+app.post("/view_earnings", (req, res) => {
+  console.log("/view_earnings");
+  const requestData = req.body; 
+  const creatorId = requestData.creatorId;
+
+  const resp5 = DB.query(`SELECT DISTINCT earnings FROM Creators WHERE ID_creator = '${creatorId}'`).values();
+  console.log("Retrieved: " + resp5);
+
+  const viewCount = resp5[0][0];
+  res.send({"viewCount": viewCount});
+
+});
+
+// 06 - POST /payout --> 
+
+app.post("/payout", (req, res) => {
+  console.log("/payout");
+  const requestData = req.body; 
+  const creatorId = requestData.creatorId;
+  const walletId = requestData.walletId; 
+
+  // Call the script
+
+  // Right now transferring from us, but ideally should be from advertiser/people
+
+  res.send({"viewCount": viewCount});
+
+});
 
 
 
