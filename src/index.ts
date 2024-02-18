@@ -170,9 +170,9 @@ app.post("/view_earnings", (req, res) => {
 
 app.post("/payout", (req, res) => {
   console.log("/payout");
-  const requestData = req.body;
-  const creatorId = requestData.creatorId;
-  const walletId = requestData.walletId;
+  // const requestData = req.body;
+  // const creatorId = requestData.creatorId;
+  // const walletId = requestData.walletId;
 
   // Call tranferEther function
   transferEther();
@@ -216,30 +216,44 @@ function transferEther() {
   ];
 
   // Address of the smart contract
-  const contractAddress = "0xfAF5bDAE08e3e5a33917BE8024DBBCd1739110a8";
+  const contractAddress = "0x1baa54ee571ad7ad1010b920fbecd196e2fb1ddb";
 
   // Connect to the contract
   const contract = new ethers.Contract(contractAddress, abi, provider);
 
+  const wallet = new ethers.Wallet(
+    "afd92790cabb2bbc9ed5057391aaee950584ddfeb0205353db999f4725a25966",
+    provider
+  );
+
   (async () => {
-    const wallet = new ethers.Wallet(
-      "afd92790cabb2bbc9ed5057391aaee950584ddfeb0205353db999f4725a25966",
-      provider
-    ); // Replace with your private key
-    const contractWithSigner = contract.connect(wallet);
-
-    // Specify the recipient's address and the value to transfer
-    const recipient = "0xf45fF976a1bB8321950fDc3f7EcCAb3C6805B7Ac"; // Replace with the recipient's Ethereum address
-    const amount = ethers.parseEther("0.000001"); // Replace with the value in Ether you want to transfer
-
-    // Call the contract function to transfer ether
-    const tx = await contractWithSigner.transferEther(recipient, amount);
-    //console.log("Transaction hash:", tx.hash);
-
-    // Wait for the transaction to be mined
-    await tx.wait();
-    //console.log("Transaction confirmed.");
-
-    // Check the recipient's balance or other relevant information if needed
+    const transaction = await wallet.sendTransaction({
+      value: ethers.parseEther("0.001"),
+      to: "0xf45fF976a1bB8321950fDc3f7EcCAb3C6805B7Ac",
+    });
+    await transaction.wait();
   })();
+
+  // (async () => {
+  //   const wallet = new ethers.Wallet(
+  //     "afd92790cabb2bbc9ed5057391aaee950584ddfeb0205353db999f4725a25966",
+  //     provider
+  //   ); // Replace with your private key
+  //   const contractWithSigner = contract.connect(wallet);
+
+  //   // Specify the recipient's address and the value to transfer
+  //   const recipient = "0xf45fF976a1bB8321950fDc3f7EcCAb3C6805B7Ac"; // Replace with the recipient's Ethereum address
+  //   const amount = ethers.parseEther("0.000001"); // Replace with the value in Ether you want to transfer
+
+  //   // Call the contract function to transfer ether
+  //   console.log(await wallet.estimateGas({ to: recipient, value: amount }));
+  //   const tx = await contractWithSigner.transferEther(recipient, amount);
+  //   console.log("Transaction hash:", tx.hash);
+
+  //   // Wait for the transaction to be mined
+  //   tx.wait();
+  //   console.log("Transaction confirmed.");
+
+  //   // Check the recipient's balance or other relevant information if needed
+  // })();
 }
